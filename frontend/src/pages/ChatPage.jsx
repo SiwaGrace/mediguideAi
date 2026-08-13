@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
-import EmergencyBar from '../components/EmergencyBar';
+import React, { useState, useRef, useEffect } from "react";
+import EmergencyBar from "../components/EmergencyBar";
 
 export default function ChatPage({ setCurrentPage }) {
   const [messages, setMessages] = useState([
@@ -12,12 +12,12 @@ export default function ChatPage({ setCurrentPage }) {
       recommendations: [],
       followUpQuestions: [],
       suggestedActions: ["Find Nearby Clinics", "Learn about Malaria"],
-      timestamp: new Date()
-    }
+      timestamp: new Date(),
+    },
   ]);
   const [inputText, setInputText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  
+
   const messagesEndRef = useRef(null);
 
   // Auto scroll to bottom when messages list changes
@@ -38,32 +38,35 @@ export default function ChatPage({ setCurrentPage }) {
       id: `user-${Date.now()}`,
       sender: "user",
       text: text,
-      timestamp: new Date()
+      timestamp: new Date(),
     };
-    setMessages(prev => [...prev, userMsg]);
+    setMessages((prev) => [...prev, userMsg]);
     setInputText("");
     setIsLoading(true);
 
     // 2. Prepare history for API
     // Map current chat bubbles to {role, content} format
     const historyPayload = messages
-      .filter(m => m.id !== "greeting") // omit welcome greeting
-      .map(m => ({
+      .filter((m) => m.id !== "greeting") // omit welcome greeting
+      .map((m) => ({
         role: m.sender === "user" ? "user" : "assistant",
-        content: m.sender === "user" ? m.text : `${m.title ? m.title + "\n" : ""}${m.text}`
+        content:
+          m.sender === "user"
+            ? m.text
+            : `${m.title ? m.title + "\n" : ""}${m.text}`,
       }));
 
     try {
       // 3. Request FastAPI server
-      const response = await fetch("http://127.0.0.1:8008/chat", {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/chat`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
           message: text,
-          history: historyPayload
-        })
+          history: historyPayload,
+        }),
       });
 
       if (!response.ok) {
@@ -82,10 +85,9 @@ export default function ChatPage({ setCurrentPage }) {
         recommendations: data.recommendations || [],
         followUpQuestions: data.followUpQuestions || [],
         suggestedActions: data.suggestedActions || [],
-        timestamp: new Date()
+        timestamp: new Date(),
       };
-      setMessages(prev => [...prev, botMsg]);
-
+      setMessages((prev) => [...prev, botMsg]);
     } catch (error) {
       console.error("Chat API Error:", error);
       // Offline fallback indicator
@@ -95,12 +97,15 @@ export default function ChatPage({ setCurrentPage }) {
         text: "Service is temporarily unavailable or offline. Please check your connection. You can also view clinics or browse health articles.",
         urgency: "Medium",
         title: "Connection Error",
-        recommendations: ["Check your network connection", "Ensure local server is running on port 8008"],
+        recommendations: [
+          "Check your network connection",
+          "Ensure local server is running on port 8008",
+        ],
         followUpQuestions: [],
         suggestedActions: ["Find Nearby Clinics", "Browse Health Library"],
-        timestamp: new Date()
+        timestamp: new Date(),
       };
-      setMessages(prev => [...prev, fallbackMsg]);
+      setMessages((prev) => [...prev, fallbackMsg]);
     } finally {
       setIsLoading(false);
     }
@@ -115,9 +120,17 @@ export default function ChatPage({ setCurrentPage }) {
 
   const handleSuggestedAction = (actionText) => {
     // Check if it's navigation action
-    if (actionText.toLowerCase().includes("clinic") || actionText.toLowerCase().includes("er")) {
+    if (
+      actionText.toLowerCase().includes("clinic") ||
+      actionText.toLowerCase().includes("er")
+    ) {
       setCurrentPage("clinics");
-    } else if (actionText.toLowerCase().includes("malaria") || actionText.toLowerCase().includes("hypertension") || actionText.toLowerCase().includes("headache") || actionText.toLowerCase().includes("pregnancy")) {
+    } else if (
+      actionText.toLowerCase().includes("malaria") ||
+      actionText.toLowerCase().includes("hypertension") ||
+      actionText.toLowerCase().includes("headache") ||
+      actionText.toLowerCase().includes("pregnancy")
+    ) {
       setCurrentPage("library");
     } else {
       // Otherwise feed it back into chat as user message
@@ -158,11 +171,13 @@ export default function ChatPage({ setCurrentPage }) {
             return (
               <div
                 key={msg.id}
-                className={`message-bubble-wrapper ${isUser ? 'align-right' : 'align-left'}`}
+                className={`message-bubble-wrapper ${isUser ? "align-right" : "align-left"}`}
               >
                 {!isUser && renderUrgencyBadge(msg.urgency)}
-                
-                <div className={`message-bubble ${isUser ? 'bubble-user' : 'bubble-bot'} ${isHighUrgency ? 'bubble-high-urgency' : ''}`}>
+
+                <div
+                  className={`message-bubble ${isUser ? "bubble-user" : "bubble-bot"} ${isHighUrgency ? "bubble-high-urgency" : ""}`}
+                >
                   {isHighUrgency && (
                     <div className="high-urgency-header">
                       <span className="er-pulse">🚨</span>
@@ -170,49 +185,60 @@ export default function ChatPage({ setCurrentPage }) {
                     </div>
                   )}
 
-                  {!isUser && msg.title && <h4 className="message-title">{msg.title}</h4>}
-                  
+                  {!isUser && msg.title && (
+                    <h4 className="message-title">{msg.title}</h4>
+                  )}
+
                   <div className="message-text">{msg.text}</div>
 
-                  {!isUser && msg.recommendations && msg.recommendations.length > 0 && (
-                    <div className="message-details-section">
-                      <h5>Recommendations:</h5>
-                      <ul className="rec-list">
-                        {msg.recommendations.map((rec, index) => (
-                          <li key={index}>📌 {rec}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
+                  {!isUser &&
+                    msg.recommendations &&
+                    msg.recommendations.length > 0 && (
+                      <div className="message-details-section">
+                        <h5>Recommendations:</h5>
+                        <ul className="rec-list">
+                          {msg.recommendations.map((rec, index) => (
+                            <li key={index}>📌 {rec}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
 
-                  {!isUser && msg.followUpQuestions && msg.followUpQuestions.length > 0 && (
-                    <div className="message-details-section">
-                      <h5>Follow-up Questions (Please reply if relevant):</h5>
-                      <ul className="followup-list">
-                        {msg.followUpQuestions.map((q, index) => (
-                          <li key={index}>❓ {q}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
+                  {!isUser &&
+                    msg.followUpQuestions &&
+                    msg.followUpQuestions.length > 0 && (
+                      <div className="message-details-section">
+                        <h5>Follow-up Questions (Please reply if relevant):</h5>
+                        <ul className="followup-list">
+                          {msg.followUpQuestions.map((q, index) => (
+                            <li key={index}>❓ {q}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
                 </div>
 
-                {!isUser && msg.suggestedActions && msg.suggestedActions.length > 0 && (
-                  <div className="suggested-actions-container">
-                    {msg.suggestedActions.map((action, index) => (
-                      <button
-                        key={index}
-                        className="btn btn-outline btn-suggested-action"
-                        onClick={() => handleSuggestedAction(action)}
-                      >
-                        {action}
-                      </button>
-                    ))}
-                  </div>
-                )}
-                
+                {!isUser &&
+                  msg.suggestedActions &&
+                  msg.suggestedActions.length > 0 && (
+                    <div className="suggested-actions-container">
+                      {msg.suggestedActions.map((action, index) => (
+                        <button
+                          key={index}
+                          className="btn btn-outline btn-suggested-action"
+                          onClick={() => handleSuggestedAction(action)}
+                        >
+                          {action}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
                 <span className="message-time">
-                  {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  {msg.timestamp.toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
                 </span>
               </div>
             );
@@ -242,13 +268,19 @@ export default function ChatPage({ setCurrentPage }) {
             disabled={isLoading}
             maxLength={300}
           />
-          <button 
-            type="submit" 
-            className="btn btn-primary chat-send-btn" 
+          <button
+            type="submit"
+            className="btn btn-primary chat-send-btn"
             disabled={!inputText.trim() || isLoading}
           >
             Send
-            <svg className="send-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <svg
+              className="send-icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+            >
               <line x1="22" y1="2" x2="11" y2="13" />
               <polygon points="22 2 15 22 11 13 2 9 22 2" />
             </svg>

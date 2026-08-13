@@ -21,7 +21,10 @@ app = FastAPI(title="MediGuide AI API", description="FastAPI layer for MediGuide
 # Enable CORS for frontend local development
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allows all origins for local testing. Can be restricted to specific localhost ports.
+    allow_origins=[
+        "http://localhost:5173",          
+        "https://mediguide-ai-omega.vercel.app/",   
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
