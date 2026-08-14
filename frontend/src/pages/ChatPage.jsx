@@ -1,15 +1,13 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import EmergencyBar from '../components/EmergencyBar';
-
-const API_URL = "http://127.0.0.1:8008/chat";
+import React, { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import EmergencyBar from "../components/EmergencyBar";
 
 const SUGGESTED_PROMPTS = [
   "I have a persistent headache",
   "Find a clinic near me",
   "How can I prevent malaria?",
   "What should I eat during pregnancy?",
-  "I have chest pain"
+  "I have chest pain",
 ];
 
 const createGreeting = () => ({
@@ -21,7 +19,7 @@ const createGreeting = () => ({
   recommendations: [],
   followUpQuestions: [],
   suggestedActions: ["Find Nearby Clinics", "Learn about Malaria"],
-  timestamp: new Date()
+  timestamp: new Date(),
 });
 
 export default function ChatPage() {
@@ -66,24 +64,32 @@ export default function ChatPage() {
     const text = textToSend.trim();
     if (!text || isLoading) return;
 
-    const userMsg = { id: `user-${Date.now()}`, sender: "user", text, timestamp: new Date() };
-    setMessages(prev => [...prev, userMsg]);
+    const userMsg = {
+      id: `user-${Date.now()}`,
+      sender: "user",
+      text,
+      timestamp: new Date(),
+    };
+    setMessages((prev) => [...prev, userMsg]);
     setInputText("");
     if (textareaRef.current) textareaRef.current.style.height = "auto";
     setIsLoading(true);
 
     const historyPayload = messages
-      .filter(m => m.id !== "greeting")
-      .map(m => ({
+      .filter((m) => m.id !== "greeting")
+      .map((m) => ({
         role: m.sender === "user" ? "user" : "assistant",
-        content: m.sender === "user" ? m.text : `${m.title ? m.title + "\n" : ""}${m.text}`
+        content:
+          m.sender === "user"
+            ? m.text
+            : `${m.title ? m.title + "\n" : ""}${m.text}`,
       }));
 
     try {
-      const response = await fetch(API_URL, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: text, history: historyPayload })
+        body: JSON.stringify({ message: text, history: historyPayload }),
       });
 
       if (!response.ok) throw new Error("Server response error");
@@ -99,9 +105,9 @@ export default function ChatPage() {
         recommendations: data.recommendations || [],
         followUpQuestions: data.followUpQuestions || [],
         suggestedActions: data.suggestedActions || [],
-        timestamp: new Date()
+        timestamp: new Date(),
       };
-      setMessages(prev => [...prev, botMsg]);
+      setMessages((prev) => [...prev, botMsg]);
     } catch (error) {
       console.error("Chat API Error:", error);
       const fallbackMsg = {
@@ -110,12 +116,15 @@ export default function ChatPage() {
         text: "Service is temporarily unavailable or offline. Please check your connection. You can also view clinics or browse health articles.",
         urgency: "Medium",
         title: "Connection Error",
-        recommendations: ["Check your network connection", "Ensure local server is running on port 8008"],
+        recommendations: [
+          "Check your network connection",
+          "Ensure local server is running on port 8008",
+        ],
         followUpQuestions: [],
         suggestedActions: ["Find Nearby Clinics", "Browse Health Library"],
-        timestamp: new Date()
+        timestamp: new Date(),
       };
-      setMessages(prev => [...prev, fallbackMsg]);
+      setMessages((prev) => [...prev, fallbackMsg]);
     } finally {
       setIsLoading(false);
     }
@@ -137,7 +146,13 @@ export default function ChatPage() {
     const lower = actionText.toLowerCase();
     if (lower.includes("clinic") || lower.includes("er")) {
       navigate("/clinics");
-    } else if (lower.includes("malaria") || lower.includes("hypertension") || lower.includes("headache") || lower.includes("pregnancy") || lower.includes("library")) {
+    } else if (
+      lower.includes("malaria") ||
+      lower.includes("hypertension") ||
+      lower.includes("headache") ||
+      lower.includes("pregnancy") ||
+      lower.includes("library")
+    ) {
       navigate("/library");
     } else {
       handleSendMessage(actionText);
@@ -164,9 +179,18 @@ export default function ChatPage() {
     if (!urgency) return null;
     let className = "badge-low";
     let icon = "🟢";
-    if (urgency === "Medium") { className = "badge-medium"; icon = "🟡"; }
-    else if (urgency === "High") { className = "badge-high"; icon = "🔴"; }
-    return <span className={`badge ${className} urgency-badge`}>{icon} {urgency} Urgency</span>;
+    if (urgency === "Medium") {
+      className = "badge-medium";
+      icon = "🟡";
+    } else if (urgency === "High") {
+      className = "badge-high";
+      icon = "🔴";
+    }
+    return (
+      <span className={`badge ${className} urgency-badge`}>
+        {icon} {urgency} Urgency
+      </span>
+    );
   };
 
   return (
@@ -177,20 +201,39 @@ export default function ChatPage() {
         <div className="chat-header-inner">
           <div className="chat-model-info">
             <div className="model-avatar" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
               </svg>
             </div>
             <div>
               <div className="model-name">MediGuide AI</div>
               <div className="model-status">
-                <span className={`status-dot ${hasConversation ? '' : 'status-online'}`} />
+                <span
+                  className={`status-dot ${hasConversation ? "" : "status-online"}`}
+                />
                 Healthcare guidance assistant
               </div>
             </div>
           </div>
-          <button className="new-chat-btn" onClick={startNewChat} title="Start a new conversation">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+          <button
+            className="new-chat-btn"
+            onClick={startNewChat}
+            title="Start a new conversation"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+            >
               <path d="M12 5v14M5 12h14" />
             </svg>
             New chat
@@ -203,15 +246,29 @@ export default function ChatPage() {
           {!hasConversation && (
             <div className="chat-welcome">
               <div className="welcome-orb" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
                   <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
                 </svg>
               </div>
               <h2>How can I help you today?</h2>
-              <p>Describe your symptoms or ask a health question. I'll give you guidance, urgency triage, and point you to local clinics.</p>
+              <p>
+                Describe your symptoms or ask a health question. I'll give you
+                guidance, urgency triage, and point you to local clinics.
+              </p>
               <div className="welcome-chips">
-                {SUGGESTED_PROMPTS.map(prompt => (
-                  <button key={prompt} className="welcome-chip" onClick={() => handlePromptClick(prompt)}>
+                {SUGGESTED_PROMPTS.map((prompt) => (
+                  <button
+                    key={prompt}
+                    className="welcome-chip"
+                    onClick={() => handlePromptClick(prompt)}
+                  >
                     {prompt}
                   </button>
                 ))}
@@ -227,10 +284,20 @@ export default function ChatPage() {
             if (isGreeting && !hasConversation) return null;
 
             return (
-              <div key={msg.id} className={`chat-msg ${isUser ? "chat-msg-user" : "chat-msg-bot"}`}>
+              <div
+                key={msg.id}
+                className={`chat-msg ${isUser ? "chat-msg-user" : "chat-msg-bot"}`}
+              >
                 {!isUser && (
                   <div className="msg-avatar" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
                       <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
                     </svg>
                   </div>
@@ -239,12 +306,16 @@ export default function ChatPage() {
                 <div className="msg-main">
                   {!isUser && (
                     <div className="msg-meta">
-                      {msg.title && <span className="msg-title">{msg.title}</span>}
+                      {msg.title && (
+                        <span className="msg-title">{msg.title}</span>
+                      )}
                       {renderUrgencyBadge(msg.urgency)}
                     </div>
                   )}
 
-                  <div className={`msg-bubble ${isUser ? "msg-bubble-user" : "msg-bubble-bot"} ${isHighUrgency ? "bubble-high-urgency" : ""}`}>
+                  <div
+                    className={`msg-bubble ${isUser ? "msg-bubble-user" : "msg-bubble-bot"} ${isHighUrgency ? "bubble-high-urgency" : ""}`}
+                  >
                     {isHighUrgency && (
                       <div className="high-urgency-header">
                         <span className="er-pulse">🚨</span>
@@ -253,49 +324,91 @@ export default function ChatPage() {
                     )}
                     <div className="msg-text">{msg.text}</div>
 
-                    {!isUser && msg.recommendations && msg.recommendations.length > 0 && (
-                      <div className="msg-details">
-                        <div className="msg-details-title">Recommendations</div>
-                        <ul className="msg-list">
-                          {msg.recommendations.map((rec, idx) => <li key={idx}>{rec}</li>)}
-                        </ul>
-                      </div>
-                    )}
+                    {!isUser &&
+                      msg.recommendations &&
+                      msg.recommendations.length > 0 && (
+                        <div className="msg-details">
+                          <div className="msg-details-title">
+                            Recommendations
+                          </div>
+                          <ul className="msg-list">
+                            {msg.recommendations.map((rec, idx) => (
+                              <li key={idx}>{rec}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
 
-                    {!isUser && msg.followUpQuestions && msg.followUpQuestions.length > 0 && (
-                      <div className="msg-details msg-details-question">
-                        <div className="msg-details-title">Follow-up questions</div>
-                        <ul className="msg-list">
-                          {msg.followUpQuestions.map((q, idx) => <li key={idx}>{q}</li>)}
-                        </ul>
-                      </div>
-                    )}
+                    {!isUser &&
+                      msg.followUpQuestions &&
+                      msg.followUpQuestions.length > 0 && (
+                        <div className="msg-details msg-details-question">
+                          <div className="msg-details-title">
+                            Follow-up questions
+                          </div>
+                          <ul className="msg-list">
+                            {msg.followUpQuestions.map((q, idx) => (
+                              <li key={idx}>{q}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
                   </div>
 
-                  {!isUser && msg.suggestedActions && msg.suggestedActions.length > 0 && (
-                    <div className="msg-action-chips">
-                      {msg.suggestedActions.map((action, idx) => (
-                        <button key={idx} className="action-chip" onClick={() => handleSuggestedAction(action)}>
-                          <svg className="chip-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M5 12h14" />
-                            <path d="m12 5 7 7-7 7" />
-                          </svg>
-                          {action}
-                        </button>
-                      ))}
-                    </div>
-                  )}
+                  {!isUser &&
+                    msg.suggestedActions &&
+                    msg.suggestedActions.length > 0 && (
+                      <div className="msg-action-chips">
+                        {msg.suggestedActions.map((action, idx) => (
+                          <button
+                            key={idx}
+                            className="action-chip"
+                            onClick={() => handleSuggestedAction(action)}
+                          >
+                            <svg
+                              className="chip-icon"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
+                              <path d="M5 12h14" />
+                              <path d="m12 5 7 7-7 7" />
+                            </svg>
+                            {action}
+                          </button>
+                        ))}
+                      </div>
+                    )}
 
                   {!isUser && (
                     <div className="msg-tools">
-                      <button className="msg-tool-btn" onClick={() => copyText(msg.text)} title="Copy response">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <button
+                        className="msg-tool-btn"
+                        onClick={() => copyText(msg.text)}
+                        title="Copy response"
+                      >
+                        <svg
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
                           <rect x="9" y="9" width="13" height="13" rx="2" />
                           <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
                         </svg>
                         Copy
                       </button>
-                      <span className="msg-time">{msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                      <span className="msg-time">
+                        {msg.timestamp.toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </span>
                     </div>
                   )}
                 </div>
@@ -306,7 +419,14 @@ export default function ChatPage() {
           {isLoading && (
             <div className="chat-msg chat-msg-bot">
               <div className="msg-avatar" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
                   <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
                 </svg>
               </div>
@@ -338,12 +458,21 @@ export default function ChatPage() {
           />
           <div className="chat-input-footer">
             <span className="chat-input-note">
-              <svg className="note-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                className="note-icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 <circle cx="12" cy="12" r="10" />
                 <line x1="12" y1="16" x2="12" y2="12" />
                 <line x1="12" y1="8" x2="12.01" y2="8" />
               </svg>
-              MediGuide AI can make mistakes — verify important information with a professional.
+              MediGuide AI can make mistakes — verify important information with
+              a professional.
             </span>
             <button
               type="submit"
@@ -351,7 +480,14 @@ export default function ChatPage() {
               disabled={!inputText.trim() || isLoading}
               aria-label="Send message"
             >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 <path d="M22 2 11 13" />
                 <path d="M22 2 15 22l-4-9-9-4 20-7Z" />
               </svg>
