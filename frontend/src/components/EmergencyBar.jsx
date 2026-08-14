@@ -23,9 +23,9 @@ export default function EmergencyBar({ onAction }) {
 
       <style>{`
         .emergency-alert-bar {
-          background-color: var(--urgency-high-bg);
-          border-bottom: 2px solid var(--urgency-high-border);
-          padding: 0.75rem 1.25rem;
+          background: linear-gradient(90deg, var(--urgency-high-bg), #fff1f0);
+          border-bottom: 1px solid var(--urgency-high-border);
+          padding: 0.85rem 1.25rem;
           width: 100%;
         }
         .emergency-container {

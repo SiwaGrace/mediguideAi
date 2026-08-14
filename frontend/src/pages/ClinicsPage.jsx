@@ -106,6 +106,13 @@ export default function ClinicsPage() {
   return (
     <div className="clinics-container fade-in">
       <section className="clinics-header">
+        <span className="section-eyebrow">
+          <svg className="eyebrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+            <circle cx="12" cy="10" r="3" />
+          </svg>
+          Verified Healthcare Directory
+        </span>
         <h1>Healthcare Clinics Directory</h1>
         <p className="subtitle">
           Find verified health centers, testing points, and emergency rooms near Kokomlemle, Ridge, and Accra central.
@@ -157,8 +164,14 @@ export default function ClinicsPage() {
                 {clinic.emergency && <span className="er-indicator">24/7 ER</span>}
               </h3>
               
-              <p className="clinic-address">📍 {clinic.location}</p>
-              <p className="clinic-phone">📞 <a href={`tel:${clinic.phone}`}>{clinic.phone}</a></p>
+              <p className="clinic-address">
+                <svg className="meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" /></svg>
+                {clinic.location}
+              </p>
+              <p className="clinic-phone">
+                <svg className="meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" /></svg>
+                <a href={`tel:${clinic.phone}`}>{clinic.phone}</a>
+              </p>
 
               <div className="clinic-specialties">
                 {clinic.specialties.map(spec => (
@@ -198,6 +211,10 @@ export default function ClinicsPage() {
         .clinics-container {
           padding-bottom: 4rem;
         }
+        .eyebrow-icon {
+          width: 0.9rem;
+          height: 0.9rem;
+        }
         .subtitle {
           color: var(--color-text-muted);
           margin-bottom: 1.5rem;
@@ -224,12 +241,17 @@ export default function ClinicsPage() {
           gap: 1rem;
           background-color: var(--color-surface);
           padding: 1.25rem;
-          border-radius: var(--radius-md);
+          border-radius: var(--radius-lg);
           border: 1px solid var(--color-border);
           box-shadow: var(--shadow-sm);
         }
         .search-input {
           width: 100%;
+          padding-left: 2.6rem;
+          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E");
+          background-repeat: no-repeat;
+          background-position: 0.9rem center;
+          background-size: 1.1rem;
         }
         .filter-tabs {
           display: flex;
@@ -274,29 +296,51 @@ export default function ClinicsPage() {
         .clinic-card-item {
           background-color: var(--color-surface);
           border: 1px solid var(--color-border);
-          border-radius: var(--radius-md);
+          border-radius: var(--radius-lg);
           padding: 1.5rem;
           box-shadow: var(--shadow-sm);
           display: flex;
           flex-direction: column;
           position: relative;
+          overflow: hidden;
           transition: all var(--transition-normal);
         }
         .clinic-card-item:hover {
-          transform: translateY(-2px);
+          transform: translateY(-4px);
           box-shadow: var(--shadow-md);
+          border-color: var(--color-border-strong);
         }
-        .emergency-accent {
-          border-left: 4px solid var(--urgency-high-text);
+        .emergency-accent::before {
+          content: "";
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 4px;
+          background: linear-gradient(90deg, var(--urgency-high-text), #f59e0b);
         }
         .clinic-card-header {
           display: flex;
           justify-content: space-between;
-          font-size: 0.75rem;
-          font-weight: 600;
+          align-items: center;
+          font-size: 0.72rem;
+          font-weight: 700;
           color: var(--color-text-muted);
           margin-bottom: 0.5rem;
           text-transform: uppercase;
+          letter-spacing: 0.06em;
+        }
+        .clinic-type {
+          color: var(--color-primary);
+          background: var(--color-primary-light);
+          padding: 0.2rem 0.55rem;
+          border-radius: 9999px;
+          font-size: 0.68rem;
+        }
+        .clinic-distance {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.25rem;
         }
         .clinic-name {
           font-size: 1.15rem;
@@ -321,11 +365,23 @@ export default function ClinicsPage() {
           font-size: 0.85rem;
           color: var(--color-text);
           margin-bottom: 0.4rem;
+          display: flex;
+          align-items: center;
+          gap: 0.4rem;
         }
         .clinic-phone {
           font-size: 0.85rem;
           color: var(--color-text-muted);
           margin-bottom: 1rem;
+          display: flex;
+          align-items: center;
+          gap: 0.4rem;
+        }
+        .meta-icon {
+          width: 0.9rem;
+          height: 0.9rem;
+          color: var(--color-primary);
+          flex-shrink: 0;
         }
         .clinic-specialties {
           display: flex;
@@ -335,13 +391,13 @@ export default function ClinicsPage() {
           margin-bottom: 1.25rem;
         }
         .specialty-tag {
-          background-color: var(--color-bg);
+          background-color: var(--color-surface-muted);
           border: 1px solid var(--color-border);
           color: var(--color-text-muted);
-          font-size: 0.75rem;
-          padding: 0.2rem 0.5rem;
-          border-radius: 4px;
-          font-weight: 500;
+          font-size: 0.72rem;
+          padding: 0.25rem 0.55rem;
+          border-radius: 9999px;
+          font-weight: 600;
         }
         .tag-danger {
           background-color: var(--urgency-high-bg);
@@ -362,11 +418,12 @@ export default function ClinicsPage() {
         }
         .rating-badge {
           font-size: 0.85rem;
-          font-weight: 600;
-          color: #d97706;
+          font-weight: 700;
+          color: #b45309;
           background-color: #fffbeb;
-          padding: 0.2rem 0.5rem;
-          border-radius: var(--radius-sm);
+          padding: 0.25rem 0.6rem;
+          border-radius: 9999px;
+          border: 1px solid #fde68a;
         }
         .btn-sm {
           padding: 0.4rem 0.85rem;

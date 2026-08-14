@@ -98,9 +98,24 @@ const LIBRARY_ARTICLES = [
 export default function HealthLibrary() {
   const [selectedArticle, setSelectedArticle] = useState(null);
 
+  const CATEGORY_TONES = {
+    "Infectious Diseases": "teal",
+    "Chronic Care": "amber",
+    "Maternal Health": "pink",
+    "Symptom Care": "blue"
+  };
+
+  const toneFor = (category) => CATEGORY_TONES[category] || "teal";
+
   return (
     <div className="library-container fade-in">
       <section className="library-header">
+        <span className="section-eyebrow">
+          <svg className="eyebrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" />
+          </svg>
+          Health Education
+        </span>
         <h1>Health Education Library</h1>
         <p className="subtitle">
           Vetted, easy-to-understand health articles covering common symptoms and conditions in West Africa.
@@ -112,11 +127,17 @@ export default function HealthLibrary() {
           <div className="grid grid-cols-2">
             {LIBRARY_ARTICLES.map(article => (
               <div key={article.id} className="card article-card" onClick={() => setSelectedArticle(article)}>
-                <div className="article-icon">{article.icon}</div>
+                <div className={`article-icon article-icon-${toneFor(article.category)}`}>{article.icon}</div>
                 <span className="article-category">{article.category}</span>
                 <h3 className="article-title">{article.title}</h3>
                 <p className="article-summary">{article.summary}</p>
-                <button className="read-more-link">Read full guide →</button>
+                <button className="read-more-link">
+                  Read full guide
+                  <svg className="read-more-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <path d="M5 12h14" />
+                    <path d="m12 5 7 7-7 7" />
+                  </svg>
+                </button>
               </div>
             ))}
           </div>
@@ -172,6 +193,10 @@ export default function HealthLibrary() {
         .library-container {
           padding-bottom: 4rem;
         }
+        .eyebrow-icon {
+          width: 0.9rem;
+          height: 0.9rem;
+        }
         .subtitle {
           color: var(--color-text-muted);
           margin-bottom: 2rem;
@@ -182,41 +207,80 @@ export default function HealthLibrary() {
           flex-direction: column;
           align-items: flex-start;
           gap: 0.5rem;
+          position: relative;
+          overflow: hidden;
+        }
+        .article-card::after {
+          content: "";
+          position: absolute;
+          inset-inline: 0;
+          bottom: 0;
+          height: 3px;
+          background: linear-gradient(90deg, var(--color-primary), var(--color-primary-soft));
+          opacity: 0;
+          transition: opacity var(--transition-fast);
+        }
+        .article-card:hover::after {
+          opacity: 1;
         }
         .article-icon {
-          font-size: 2rem;
+          font-size: 1.5rem;
+          width: 3.25rem;
+          height: 3.25rem;
+          border-radius: var(--radius-md);
+          display: flex;
+          align-items: center;
+          justify-content: center;
           margin-bottom: 0.25rem;
+          box-shadow: var(--shadow-xs);
         }
+        .article-icon-teal { background-color: var(--color-primary-light); }
+        .article-icon-amber { background-color: #fef3c7; }
+        .article-icon-pink { background-color: #fce8f3; }
+        .article-icon-blue { background-color: #e0f2fe; }
         .article-category {
-          font-size: 0.75rem;
+          font-size: 0.7rem;
           font-weight: 700;
           color: var(--color-primary);
           text-transform: uppercase;
-          letter-spacing: 0.05em;
+          letter-spacing: 0.08em;
         }
         .article-title {
-          font-size: 1.25rem;
+          font-family: var(--font-display);
+          font-size: 1.2rem;
           color: var(--color-text);
           font-weight: 700;
         }
         .article-summary {
           font-size: 0.9rem;
           color: var(--color-text-muted);
-          line-height: 1.5;
-          margin-bottom: 1rem;
+          line-height: 1.55;
+          margin-bottom: 0.5rem;
         }
         .read-more-link {
           background: none;
           border: none;
           color: var(--color-primary);
-          font-weight: 600;
+          font-weight: 700;
           font-size: 0.9rem;
           cursor: pointer;
           padding: 0;
           margin-top: auto;
+          display: inline-flex;
+          align-items: center;
+          gap: 0.3rem;
+        }
+        .read-more-arrow {
+          width: 0.9rem;
+          height: 0.9rem;
+          transition: transform var(--transition-fast);
+        }
+        .read-more-link:hover .read-more-arrow {
+          transform: translateX(4px);
         }
         .read-more-link:hover {
-          text-decoration: underline;
+          text-decoration: none;
+          color: var(--color-primary-hover);
         }
 
         .article-detail {
@@ -273,17 +337,28 @@ export default function HealthLibrary() {
         }
         .detail-section p {
           font-size: 0.95rem;
-          line-height: 1.6;
+          line-height: 1.65;
           color: var(--color-text);
         }
         .detail-section ul {
-          padding-left: 1.25rem;
+          list-style: none;
+          padding-left: 0;
         }
         .detail-section li {
           font-size: 0.95rem;
-          line-height: 1.5;
-          margin-bottom: 0.35rem;
+          line-height: 1.55;
+          margin-bottom: 0.45rem;
           color: var(--color-text);
+          padding-left: 1.5rem;
+          position: relative;
+        }
+        .detail-section li::before {
+          content: "✓";
+          position: absolute;
+          left: 0;
+          top: 0;
+          color: var(--color-primary);
+          font-weight: 700;
         }
         .self-care-box {
           background-color: var(--color-primary-light);
